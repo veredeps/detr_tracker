@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 **DE⫶TR**: End-to-End Object Detection with Transformers
 ========
 PyTorch training code and pretrained models for **DETR** (**DE**tection **TR**ansformer).
@@ -261,3 +262,6 @@ DETR is released under the Apache 2.0 license. Please see the [LICENSE](LICENSE)
 
 # Contributing
 We actively welcome your pull requests! Please see [CONTRIBUTING.md](.github/CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](.github/CODE_OF_CONDUCT.md) for more info.
+=======
+# detr_tracker
+>>>>>>> 6131e6c2622704f6ef3e1b6d8099df4d05f7a6d2
