@@ -43,8 +43,8 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         img_id = self.ids[idx]
         ann_ids = coco.getAnnIds(imgIds=img_id)
         obj_id = random.randint(0, len(ann_ids) - 1)
-        target = coco.loadAnns(ann_ids)
-        target = coco.loadAnns(obj_id)
+        #target = coco.loadAnns(ann_ids)
+        target = coco.loadAnns(ann_ids[obj_id])
         path = coco.loadImgs(img_id)[0]['file_name']
         assert path == target[0]['image_name'].split('.')[0]
 
