@@ -15,3 +15,5 @@ experiment-*
 .mypy_cache/*
 not_tracked_dir/
 .vscode
+create_data/train.json
+create_data/val.json
