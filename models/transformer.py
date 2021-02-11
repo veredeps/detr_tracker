@@ -59,6 +59,81 @@ class Transformer(nn.Module):
         return hs.transpose(1, 2), memory.permute(1, 2, 0).view(bs, c, h, w)
 
 
+class Transformer_REDETECTOR(nn.Module):
+
+    def __init__(self, d_model=512, nhead=8, num_encoder_layers=6,
+                 num_decoder_layers=6, dim_feedforward=2048, dropout=0.1,
+                 activation="relu", normalize_before=False,
+                 return_intermediate_dec=False):
+        super().__init__()
+
+        #for self attention of each image
+        encoder_layer = TransformerEncoderLayer(d_model, nhead, dim_feedforward,
+                                                dropout, activation, normalize_before)
+        encoder_norm = nn.LayerNorm(d_model) if normalize_before else None
+        self.encoder = TransformerEncoder(encoder_layer, num_encoder_layers, encoder_norm)
+
+        #for  cross attention between 2 images
+        #encoder_layer2 = TransformerEncoderLayer(d_model, nhead, dim_feedforward,
+        #                                        dropout, activation, normalize_before)
+
+        #encoder_norm2 = nn.LayerNorm(d_model) if normalize_before else None
+        #self.encoder2 = TransformerEncoder(encoder_layer2, num_encoder_layers, encoder_norm2)
+
+        #for  cross attention between 2 images
+        decoder_layer1 = TransformerDecoderLayer(d_model, nhead, dim_feedforward,
+                                                dropout, activation, normalize_before)
+        decoder_norm1 = nn.LayerNorm(d_model)
+
+        self.decoder1 = TransformerDecoder(decoder_layer1, num_decoder_layers, decoder_norm1,
+                                          return_intermediate=return_intermediate_dec)
+
+
+        decoder_layer2 = TransformerDecoderLayer(d_model, nhead, dim_feedforward,
+                                                dropout, activation, normalize_before)
+        decoder_norm2 = nn.LayerNorm(d_model)
+
+
+        self.decoder2 = TransformerDecoder(decoder_layer2, num_decoder_layers, decoder_norm2,
+                                          return_intermediate=return_intermediate_dec)
+
+        self._reset_parameters()
+
+        self.d_model = d_model
+        self.nhead = nhead
+
+    def _reset_parameters(self):
+        for p in self.parameters():
+            if p.dim() > 1:
+                nn.init.xavier_uniform_(p)
+
+    def forward_redetector(self, src1, mask1, src2, mask2, query_embed, pos_embed1, pos_embed2):
+        # flatten NxCxHxW to HWxNxC
+        bs1, c1, h1, w1 = src1.shape
+        src1 = src1.flatten(2).permute(2, 0, 1)
+        pos_embed1 = pos_embed1.flatten(2).permute(2, 0, 1)
+        mask1 = mask1.flatten(1)
+
+        bs2, c2, h2, w2 = src2.shape
+        src2 = src2.flatten(2).permute(2, 0, 1)
+        pos_embed2 = pos_embed2.flatten(2).permute(2, 0, 1)
+        mask2 = mask2.flatten(1)
+
+        query_embed = query_embed.unsqueeze(1).repeat(1, bs2, 1)   #bs  = batch size?  and is bs2 is ok here VERED
+
+        tgt = torch.zeros_like(query_embed)
+        memory1 = self.encoder(src1, src_key_padding_mask=mask1, pos=pos_embed1)
+        memory2 = self.encoder(src2, src_key_padding_mask=mask2, pos=pos_embed2)
+        hs1 = self.decoder1(memory2, memory1, memory_key_padding_mask=mask1,
+                          pos=pos_embed1, query_pos=pos_embed2)
+
+        hs = self.decoder2(tgt, hs1, memory_key_padding_mask=mask2,
+                          pos=pos_embed2, query_pos=query_embed)
+        #hs = self.decoder(tgt, memory, memory_key_padding_mask=mask,
+        #                  pos=pos_embed, query_pos=query_embed)
+        return hs.transpose(1, 2), hs1.permute(1, 2, 0).view(bs2, c2, h2, w2)  # check if hs1, (bs2, c2, h2, w2) are ok
+
+
 class TransformerEncoder(nn.Module):
 
     def __init__(self, encoder_layer, num_layers, norm=None):
@@ -189,6 +264,7 @@ class TransformerDecoderLayer(nn.Module):
     def __init__(self, d_model, nhead, dim_feedforward=2048, dropout=0.1,
                  activation="relu", normalize_before=False):
         super().__init__()
+
         self.self_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
         self.multihead_attn = nn.MultiheadAttention(d_model, nhead, dropout=dropout)
         # Implementation of Feedforward model
@@ -284,6 +360,20 @@ def build_transformer(args):
         normalize_before=args.pre_norm,
         return_intermediate_dec=True,
     )
+
+
+def build_transformer_redetector(args):
+    return Transformer_REDETECTOR(
+        d_model=args.hidden_dim,
+        dropout=args.dropout,
+        nhead=args.nheads,
+        dim_feedforward=args.dim_feedforward,
+        num_encoder_layers=args.enc_layers,
+        num_decoder_layers=args.dec_layers,
+        normalize_before=args.pre_norm,
+        return_intermediate_dec=True,
+    )
+
 
 
 def _get_activation_fn(activation):
