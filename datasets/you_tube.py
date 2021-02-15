@@ -110,8 +110,8 @@ class ConvertCocoPolysToMask(object):
         keypoints = None
 
         keep = torch.all((boxes[:, 3] > boxes[:, 1]) & (boxes[:, 2] > boxes[:, 0]))
-        #boxes = boxes[keep]
-        #classes = classes[keep]
+        boxes = boxes[keep]
+        classes = classes[keep]
         if self.return_masks:
             masks = masks[keep]
 
