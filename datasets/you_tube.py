@@ -38,7 +38,7 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         self.prepare = ConvertCocoPolysToMask(return_masks)
 
     def __getitem__(self, idx):
-        #img, target = super(CocoDetection, self).__getitem__(idx)
+        #img, target = super(CocoDetection, self).__getitem__(idx)  #this line is parsed below
         coco = self.coco
         img_id = self.ids[idx]
         ann_ids = coco.getAnnIds(imgIds=img_id)
