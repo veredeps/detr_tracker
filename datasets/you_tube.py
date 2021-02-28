@@ -15,6 +15,8 @@ import os
 import random
 
 import datasets.transforms as T
+import util.misc as utils
+import numpy as np
 
 
 
@@ -38,6 +40,14 @@ class CocoDetection(torchvision.datasets.CocoDetection):
         self.prepare = ConvertCocoPolysToMask(return_masks)
 
     def __getitem__(self, idx):
+
+        # fix the seed for reproducibility  VERED
+        #seed = 42 + utils.get_rank()   #42 is arbitrary
+        #torch.manual_seed(seed)
+        #np.random.seed(seed)
+        #random.seed(seed)
+        #end fix seed
+
         #img, target = super(CocoDetection, self).__getitem__(idx)  #this line is parsed below
         coco = self.coco
         img_id = self.ids[idx]
@@ -87,11 +97,15 @@ class ConvertCocoPolysToMask(object):
         image_id = target["image_id"]
         image_id = torch.tensor([image_id])
 
+
         anno = target["annotations"]
 
         assert len(anno) == 1  # only one object per annotation
         anno = anno[0]
         #anno = [obj for obj in anno if 'iscrowd' not in obj or obj['iscrowd'] == 0]
+
+        curr_image_id = anno['image_id']
+        curr_image_id = torch.tensor([curr_image_id])
 
         boxes = [anno["template_bbox"], anno["bbox"]]
         # guard against no boxes via resizing
@@ -102,6 +116,7 @@ class ConvertCocoPolysToMask(object):
 
         classes = anno["category_id"]
         classes = torch.tensor(classes, dtype=torch.int64)
+
 
         if self.return_masks:
             segmentations = [obj["segmentation"] for obj in anno]
@@ -120,7 +135,8 @@ class ConvertCocoPolysToMask(object):
         target["labels"] = classes
         if self.return_masks:
             target["masks"] = masks
-        target["image_id"] = image_id
+        target["image_id"] = image_id   #template image id
+        target["curr_image_id"] = curr_image_id
 
         # for conversion to coco api
         area = torch.tensor(anno["area"])
