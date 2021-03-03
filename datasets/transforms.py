@@ -14,7 +14,10 @@ from util.misc import interpolate
 
 
 def crop(image, target, region):
-    cropped_image = F.crop(image, *region)
+    if type(image) == list:
+        cropped_image = [F.crop(im, *region) for im in image]
+    else:
+        cropped_image = F.crop(image, *region)
 
     target = target.copy()
     i, j, h, w = region
@@ -69,8 +72,14 @@ def hflip(image, target):
     target = target.copy()
     if "boxes" in target:
         boxes = target["boxes"]
-        boxes = boxes[:, [2, 1, 0, 3]] * torch.as_tensor([-1, 1, -1, 1]) + torch.as_tensor([w, 0, w, 0])
-        target["boxes"] = boxes
+        if boxes.shape[1] == 2:
+            for i in range(2):
+                new = boxes[:, i, [2, 1, 0, 3]] * torch.as_tensor([-1, 1, -1, 1]) + torch.as_tensor([w, 0, w, 0])
+                boxes[:,i,:] = new
+            target["boxes"] = boxes
+        else:
+            boxes = boxes[:, [2, 1, 0, 3]] * torch.as_tensor([-1, 1, -1, 1]) + torch.as_tensor([w, 0, w, 0])
+            target["boxes"] = boxes
 
     if "masks" in target:
         target['masks'] = target['masks'].flip(-1)
@@ -177,6 +186,8 @@ class RandomSizeCrop(object):
         w = random.randint(self.min_size, min(i.width, self.max_size))
         h = random.randint(self.min_size, min(i.height, self.max_size))
         region = T.RandomCrop.get_params(i, [h, w])
+        #if (type(img) == list)
+        #    return
         return crop(img, target, region)
 
 
