@@ -15,9 +15,14 @@ import os
 import random
 
 import datasets.transforms as T
-import util.misc as utils
-import numpy as np
 
+#import util.misc as utils
+#import numpy as np
+# fix the seed for reproducibility  VERED
+# seed = 42 + utils.get_rank()   #42 is arbitrary
+# torch.manual_seed(seed)
+# np.random.seed(seed)
+# random.seed(seed)
 
 
 
@@ -41,12 +46,6 @@ class CocoDetection(torchvision.datasets.CocoDetection):
 
     def __getitem__(self, idx):
 
-        # fix the seed for reproducibility  VERED
-        #seed = 42 + utils.get_rank()   #42 is arbitrary
-        #torch.manual_seed(seed)
-        #np.random.seed(seed)
-        #random.seed(seed)
-        #end fix seed
 
         #img, target = super(CocoDetection, self).__getitem__(idx)  #this line is parsed below
         coco = self.coco
