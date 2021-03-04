@@ -25,7 +25,7 @@ def crop(image, target, region):
     # should we do something wrt the original size?
     target["size"] = torch.tensor([h, w])
 
-    fields = ["labels", "area", "iscrowd"]
+    fields = ["labels", "iscrowd"]
 
     if "boxes" in target:
         boxes = target["boxes"]
@@ -36,7 +36,8 @@ def crop(image, target, region):
         area = (cropped_boxes[:, 1, :] - cropped_boxes[:, 0, :]).prod(dim=1)
         target["boxes"] = cropped_boxes.reshape(-1, 4)
         target["area"] = area
-        fields.append("boxes")
+        #fields.append("boxes")
+
 
     if "masks" in target:
         # FIXME should we update the area here if there are no boxes?
@@ -50,9 +51,14 @@ def crop(image, target, region):
         if "boxes" in target:
             cropped_boxes = target['boxes'].reshape(-1, 2, 2)
             keep = torch.all(cropped_boxes[:, 1, :] > cropped_boxes[:, 0, :], dim=1)
+            target['boxes'] = target['boxes'][keep]
+            target['area'] = target['area'][keep]
         else:
             keep = target['masks'].flatten(1).any(1)
+            target['boxes'] = target['boxes'][keep]
+            target['area'] = target['area'][keep]
 
+        keep = keep[:, 0] if len(keep.shape) > 1 else keep[0]
         for field in fields:
             target[field] = target[field][keep]
 
