@@ -103,8 +103,6 @@ class ConvertCocoPolysToMask(object):
         anno = anno[0]
         #anno = [obj for obj in anno if 'iscrowd' not in obj or obj['iscrowd'] == 0]
 
-        curr_image_id = anno['image_id']
-        curr_image_id = torch.tensor([curr_image_id])
 
         boxes = [anno["template_bbox"], anno["bbox"]]
         # guard against no boxes via resizing
@@ -134,8 +132,7 @@ class ConvertCocoPolysToMask(object):
         target["labels"] = classes
         if self.return_masks:
             target["masks"] = masks
-        target["image_id"] = image_id   #template image id
-        target["curr_image_id"] = curr_image_id
+        target["image_id"] = image_id
 
         # for conversion to coco api
         area = torch.tensor(anno["area"])
