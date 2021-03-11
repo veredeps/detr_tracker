@@ -83,7 +83,7 @@ def get_args_parser():
                         help="Relative classification weight of the no-object class")
 
     # dataset parameters
-    parser.add_argument('--dataset_file', default='coco')
+    parser.add_argument('--dataset_file', default='coco')   # here youtube
     parser.add_argument('--coco_path', type=str)
     parser.add_argument('--youtube_json_path', type=str)
     parser.add_argument('--youtube_image_path', type=str)
@@ -129,9 +129,9 @@ def main(args):
     random.seed(seed)
 
     #for debug
-    dataset_train = build_dataset(image_set='train', args=args)
-    dataset_train.__getitem__(0)
-    dataset_val = build_dataset(image_set='val', args=args)
+    #dataset_train = build_dataset(image_set='train', args=args)
+    #dataset_train.__getitem__(0)
+    #dataset_val = build_dataset(image_set='val', args=args)
 
     if args.resume_type == 'DETR':  #eval or train form pretrained REDETECTOR model
         model, criterion, postprocessors = build_model(args)
