@@ -1,6 +1,9 @@
 created hte transformer
 now have to go through code to check loading data for train  and  add init bbox
 
+4.3    still need to walk through get item to see if data is warped well
+       already passes throughall transforms
+       האריזה של  ה  ןצשעקד אחרי ה טרנספורמציות  נראית לי מוזר  לבדוק את ה שנוי במבנה של  של ה img    
 
 
 
