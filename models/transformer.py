@@ -107,7 +107,7 @@ class Transformer_REDETECTOR(nn.Module):
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
 
-    def forward_redetector(self, src1, mask1, src2, mask2, query_embed, pos_embed1, pos_embed2):
+    def forward(self, src1, mask1, src2, mask2, query_embed, pos_embed1, pos_embed2):
         # flatten NxCxHxW to HWxNxC
         bs1, c1, h1, w1 = src1.shape
         src1 = src1.flatten(2).permute(2, 0, 1)
