@@ -185,7 +185,6 @@ def main(args):
 
     if args.frozen_weights is not None:
         checkpoint = torch.load(args.frozen_weights, map_location='cpu')
-        #model_without_ddp.detr.load_state_dict(checkpoint['model'])
         model.detr.load_state_dict(checkpoint['model'])
 
     output_dir = Path(args.output_dir)
@@ -195,11 +194,11 @@ def main(args):
                 args.resume, map_location='cpu', check_hash=True)
         else:
             checkpoint = torch.load(args.resume, map_location='cpu')
-        #model_without_ddp.load_state_dict(checkpoint['model'])
+
         model.load_state_dict(checkpoint['model'])
         #####   now enlarging the model to redetector model and the update : param_dict, optimizer and lr_scheduler
         if args.resume_type == 'DETR':
-            model, criterion = build_redetector_from_detr(args, model_without_ddp, criterion)
+            model, criterion = build_redetector_from_detr(args, model, criterion)
 
         model_without_ddp = model
         if args.distributed:
