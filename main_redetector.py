@@ -135,6 +135,9 @@ def main(args):
 
     if args.resume_type == 'DETR':  #eval or train form pretrained REDETECTOR model
         model, criterion, postprocessors = build_model(args)
+        #init all detr params not to be trained so assign require grad  = false
+        for param in model.parameters():
+            param.requires_grad = False
     elif args.resume_type == 'REDETECTOR':  #eval or train form pretrained REDETECTOR model
         model = build_redetectr_model(args)
     model.to(device)
@@ -225,7 +228,6 @@ def main(args):
             lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
             args.start_epoch = checkpoint['epoch'] + 1
 
-#################################################################################
 
     if args.eval:
         test_stats, coco_evaluator = evaluate(model, criterion, postprocessors,
