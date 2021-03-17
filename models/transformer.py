@@ -124,14 +124,15 @@ class Transformer_REDETECTOR(nn.Module):
         tgt = torch.zeros_like(query_embed)
         memory1 = self.encoder(src1, src_key_padding_mask=mask1, pos=pos_embed1)
         memory2 = self.encoder(src2, src_key_padding_mask=mask2, pos=pos_embed2)
+
         hs1 = self.decoder1(memory2, memory1, memory_key_padding_mask=mask1,
                           pos=pos_embed1, query_pos=pos_embed2)
 
-        hs = self.decoder2(tgt, hs1, memory_key_padding_mask=mask2,
+        hs = self.decoder2(tgt, hs1[-1], memory_key_padding_mask=mask2,
                           pos=pos_embed2, query_pos=query_embed)
         #hs = self.decoder(tgt, memory, memory_key_padding_mask=mask,
         #                  pos=pos_embed, query_pos=query_embed)
-        return hs.transpose(1, 2), hs1.permute(1, 2, 0).view(bs2, c2, h2, w2)  # check if hs1, (bs2, c2, h2, w2) are ok
+        return hs.transpose(1, 2), hs1[-1].permute(1, 2, 0).view(bs2, c2, h2, w2)  # check if hs1, (bs2, c2, h2, w2) are ok
 
 
 class TransformerEncoder(nn.Module):
