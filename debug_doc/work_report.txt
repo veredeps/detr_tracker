@@ -6,4 +6,18 @@ now have to go through code to check loading data for train  and  add init bbox
        האריזה של  ה  ןצשעקד אחרי ה טרנספורמציות  נראית לי מוזר  לבדוק את ה שנוי במבנה של  של ה img    
 
 
+16.3   runtimeError: CUDA out of memory. Tried to allocate 18.00 MiB (GPU 0; 7.79 GiB total capacity; 2.78 GiB already allocated; 2.88 MiB free; 2.80 GiB reserved in total by PyTorch)
+\\maybe i have to limit learning only on th 2 decoder layrs .  no need to train backbone and self attention
+
+for now i prevented learning on backbone and ok  
+i should try again wih backbone and check if error reoccur
+
+
+
+24.3 pay attention !!  when we do log_every then , after get_item   it goes to  nested_tensor_from_tensor_list ( in misc.py) and here it creates a mask for cases where the imates in the batch are not identical in size
+for some reason tensor_list[0].device = cpu - need to be checked if ok !!!
+
+
+
+
 
