@@ -281,9 +281,10 @@ def _max_by_axis(the_list):
 
 
 class NestedTensor(object):
-    def __init__(self, tensors, mask: Optional[Tensor]):
+    def __init__(self, tensors, mask: Optional[Tensor], bbox:Optional[Tensor]=None ):
         self.tensors = tensors
         self.mask = mask
+        self.bbox = bbox  #vered
 
     def to(self, device):
         # type: (Device) -> NestedTensor # noqa
@@ -294,7 +295,14 @@ class NestedTensor(object):
             cast_mask = mask.to(device)
         else:
             cast_mask = None
-        return NestedTensor(cast_tensor, cast_mask)
+        bbox = self.bbox
+        if bbox is not None:
+            assert bbox is not None
+            cast_bbox = bbox.to(device)
+        else:
+            cast_bbox = None
+
+        return NestedTensor(cast_tensor, cast_mask, cast_bbox)
 
     def decompose(self):
         return self.tensors, self.mask
