@@ -26,6 +26,12 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     print_freq = 10
 
     for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
+
+        #add bbox on template image to sample
+        bboxes = [targets[0]['boxes'][0, 0, :].numpy(), targets[1]['boxes'][0, 0, :].numpy()]
+        bboxes = torch.as_tensor(bboxes, dtype=torch.float32).reshape(-1, 4)
+        samples.bbox = bboxes
+
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
 
